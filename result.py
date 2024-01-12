@@ -3,6 +3,7 @@ from openpyxl import load_workbook
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+import csv
 
 service = Service()
 option = webdriver.ChromeOptions()
@@ -12,10 +13,11 @@ wb = load_workbook("Words.xlsx")
 ws = wb['Sheet1']
 max_row = ws.max_row
 
-def add_word_action():
+def add_word_action(new_word):
     global max_row
     repeating_words = set(ws.cell(row=row, column=1).value for row in range(2, max_row + 1))
     if new_word!="" and new_word not in repeating_words:
+        new_word = new_word.capitalize()
         ws.cell(row=max_row + 1, column=1, value=new_word)
         max_row += 1
 
@@ -45,11 +47,11 @@ def add_word_action():
             ws.cell(row=1, column=col_index, value=header)
 
 
-choose_option = input('New word/Find word: ')
+choose_option = input('New word/Find word/Work with text: ')
 
 if choose_option == 'New word':
     new_word = input('Word: ')
-    add_word_action()
+    add_word_action(new_word)
 
 elif choose_option == 'Find word':
     choose_language = input('In which language you will input a word? lv/eng: ')
@@ -82,7 +84,34 @@ elif choose_option == 'Find word':
                 print('Here is not this word')
     else:
         print('Here is not that option. Choose between lv and eng')
-    
+
+elif choose_option == 'Work with text':
+    transl_dict = {}
+    result_text = []
+    word_count=0
+    max_row = ws.max_row
+    for row in range(2, max_row + 1):
+        word = ws.cell(row=row, column=1).value
+        translation = ws.cell(row=row, column=2).value
+        if word is not None and translation is not None:
+            transl_dict[word.lower()] = translation
+    input_text = input("Enter the text: ")
+    split_words = input_text.split()
+    for word in split_words:
+        lower_word = word.lower()
+        if lower_word in transl_dict:
+            result_text.append(f'{word} ({transl_dict[lower_word]})')
+        else:
+            result_text.append(word)
+        word_count += 1
+        if word_count % 11 == 0:
+            result_text.append('\n')
+    translated_text = ' '.join(result_text)
+    with open('text.csv', 'w', newline='', encoding='utf-8') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow([translated_text])
+
+
 else :
     print('Error')
     print('Try one more time')
