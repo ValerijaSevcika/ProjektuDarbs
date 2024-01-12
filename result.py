@@ -13,11 +13,11 @@ wb = load_workbook("Words.xlsx")
 ws = wb['Sheet1']
 max_row = ws.max_row
 
-def add_word_action(new_word):
+def add_word_action(new_word):  #code for adding new word to Excel file
     global max_row
-    repeating_words = set(ws.cell(row=row, column=1).value for row in range(2, max_row + 1))
+    repeating_words = set(ws.cell(row=row, column=1).value for row in range(2, max_row + 1)) #if word already is in Excel, it is not added
     if new_word!="" and new_word not in repeating_words:
-        new_word = new_word.capitalize()
+        new_word = new_word.capitalize() #words starts with capital letter
         ws.cell(row=max_row + 1, column=1, value=new_word)
         max_row += 1
 
@@ -41,7 +41,7 @@ def add_word_action(new_word):
     else:
         print('You did not write a word or it is already in the list')
 
-    new_headers = ['Word', 'Translated Word']
+    new_headers = ['Word', 'Translated Word'] #headers to excel file
     if ws.cell(row=1, column=1).value is None:
         for col_index, header in enumerate(new_headers, start=1):
             ws.cell(row=1, column=col_index, value=header)
@@ -70,7 +70,7 @@ elif choose_option == 'Find word':
                 print('Here is not this word, you can add it')
                 choose = input('Do you want to add? ' )
                 if choose == 'yes':
-                    add_word_action()
+                    add_word_action(new_word)
         else:
             new_word = input('Word: ')
             for row in range(2, max_row + 1):
@@ -98,12 +98,12 @@ elif choose_option == 'Work with text':
     input_text = input("Enter the text: ")
     split_words = input_text.split()
     for word in split_words:
-        lower_word = word.lower()
+        lower_word = word.lower() 
         if lower_word in transl_dict:
             result_text.append(f'{word} ({transl_dict[lower_word]})')
         else:
             result_text.append(word)
-        word_count += 1
+        word_count += 1  # after every 10th word, text goes on next row
         if word_count % 11 == 0:
             result_text.append('\n')
     translated_text = ' '.join(result_text)
@@ -116,7 +116,7 @@ else :
     print('Error')
     print('Try one more time')
 
-data = list(ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=2, values_only=True))
+data = list(ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=2, values_only=True))  #words in exel file is sorted alphabetically first row and second row automaticly changes with cell from first column
 sorted_data = sorted(data, key=lambda x: x[0])
 ws.delete_rows(2, ws.max_row)
 for row_index, row_data in enumerate(sorted_data, start=2):
